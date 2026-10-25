@@ -2,7 +2,7 @@
 
 Public deployment orchestration for [FlowLoop.io](https://flowloop.io/). Editable websites live in `patrickneubauer/flowloop.io` and `patrickneubauer/caveOS`; this repository contains no generated website or private CaveOS content.
 
-**Preparation state, 25 October 2026:** production still publishes from the existing FlowLoop source repository. The new source branches and pending CaveOS publication profile require review. No domain assignment or source visibility has changed. Deployment credentials, Pages settings, protection rules and activation variables are not provisioned by this code.
+**Preparation state, 25 October 2026:** production still publishes from the existing FlowLoop source repository. CaveOS’s public boundary is owner-approved and integrated on its main; the FlowLoop migration remains a draft until cutover. No domain assignment or source visibility has changed. Deployment credentials, Pages settings, protection rules and activation variables are not provisioned by this code.
 
 ## Local assembly
 
@@ -20,6 +20,7 @@ python3 -m http.server 5189 --bind 127.0.0.1 --directory ../preview-site
 ## Automation
 
 - [Deployment workflow](.github/workflows/deploy.yml): main pushes, `repository_dispatch` (`source-updated`), and manual `workflow_dispatch`. Ignores dispatch payloads and reads current trusted `main` branches.
+- [Prepared migration preflight](.github/workflows/verify-migration.yml): manual credential-backed validation of the reviewed FlowLoop branch and CaveOS main, with no upload/deploy. See [owner setup](docs/owner-setup.md).
 - [Tooling checks](.github/workflows/check.yml): synthetic tests on pushes and pull requests, without private-source credentials.
 - Source repository notification workflows: every `main` commit, including non-website changes, requests a rebuild once enabled. No scheduled jobs, trigger loops or generated Git commits.
 - `SOURCE_BUILD_ENABLED=true` activates source reads/builds. `PAGES_DEPLOY_ENABLED=true` activates publication. Both are absent/off initially; these switches do not replace the approval policy.

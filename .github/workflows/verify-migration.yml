@@ -1,0 +1,79 @@
+name: Validate prepared migration
+
+# Temporary pre-cutover check. Uses the reviewed migration branch without
+# replacing the old main/root Pages site. No artifact is uploaded or deployed.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-prepared-migration
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    if: github.repository == 'patrickneubauer/flowloop-pages' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: source-read
+    timeout-minutes: 15
+    steps:
+      - name: Checkout trusted orchestration
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Check tooling before accessing private sources
+        run: python3 -m unittest discover -s tests -v
+      - name: Mint read-only source installation token
+        if: vars.SOURCE_APP_ID != ''
+        id: app
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2
+        with:
+          app-id: ${{ vars.SOURCE_APP_ID }}
+          private-key: ${{ secrets.SOURCE_APP_PRIVATE_KEY }}
+          owner: patrickneubauer
+          repositories: |
+            flowloop.io
+            caveOS
+          permission-contents: read
+      - name: Verify source credential is provisioned
+        env:
+          SOURCE_TOKEN: ${{ steps.app.outputs.token || secrets.SOURCE_READ_TOKEN }}
+        run: test -n "$SOURCE_TOKEN" || { echo '::error::Provision a source-read credential first.'; exit 1; }
+      - name: Checkout FlowLoop source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: patrickneubauer/flowloop.io
+          ref: codex/multi-project-website
+          path: .sources/flowloop
+          token: ${{ steps.app.outputs.token || secrets.SOURCE_READ_TOKEN }}
+          persist-credentials: false
+      - name: Checkout CaveOS website source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: patrickneubauer/caveOS
+          ref: main
+          path: .sources/caveos
+          token: ${{ steps.app.outputs.token || secrets.SOURCE_READ_TOKEN }}
+          persist-credentials: false
+          sparse-checkout: website
+      - name: Assemble approved files only
+        run: python3 scripts/assemble-site.py --flowloop .sources/flowloop --caveos .sources/caveos --output ../migration-check-site
+      - name: Validate routes, assets and public boundary
+        run: python3 scripts/validate-site.py --site ../migration-check-site --caveos .sources/caveos
+      - name: Record source revisions
+        id: revisions
+        shell: bash
+        run: |
+          set -euo pipefail
+          flowloop_sha=$(git -C .sources/flowloop rev-parse HEAD)
+          caveos_sha=$(git -C .sources/caveos rev-parse HEAD)
+          echo "flowloop=$flowloop_sha" >> "$GITHUB_OUTPUT"
+          echo "caveos=$caveos_sha" >> "$GITHUB_OUTPUT"
+          echo "FlowLoop source: $flowloop_sha" >> "$GITHUB_STEP_SUMMARY"
+          echo "CaveOS source: $caveos_sha" >> "$GITHUB_STEP_SUMMARY"
+          echo 'The generated deployment-manifest.json records revisions and artifact hashes.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Report successful pre-cutover validation
+        run: echo 'Prepared migration assembled and validated with source credentials. No artifact was uploaded and no Pages deployment was requested.' >> "$GITHUB_STEP_SUMMARY"

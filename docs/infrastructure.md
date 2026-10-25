@@ -24,11 +24,11 @@ Routes use lowercase project directory names and trailing slashes: `/`, `/flowlo
 
 ## CaveOS publication boundary
 
-The **proposed**, unapproved `episode-1-2-promo-v1` profile contains three pages: homepage, technical explainer and credits. It retains seven existing images (Work Bay, gameplay capture and five runtime characters), CSS, two scripts and favicon. Gallery browsing is limited to the Work Bay and gameplay capture. The technical page includes architecture details and a clearly labelled minor Episode 1 puzzle-mechanics example; the owner must approve that disclosure too.
+The **owner-approved on 25 October 2026** `episode-1-2-promo-v1` profile contains three pages: homepage, technical explainer and credits. It retains seven existing images (Work Bay, gameplay capture and five runtime characters), CSS, two scripts and favicon. Gallery browsing is limited to the Work Bay and gameplay capture. The technical page includes architecture details and a clearly labelled minor Episode 1 puzzle-mechanics example; that disclosure was included in the owner’s explicit approval.
 
-The whole-story and episode-guide pages are excluded in full. Later episode sections, concept portraits, later development artwork and links to omitted guides are removed from output. Hidden disclosures are not access control. The local audit inventories all 35 original served files; only 14 are proposed for publication. Approval is recorded in the private policy (`status`, `approved_by`, `approved_at`) after the owner reviews the actual generated preview. Do not set these fields speculatively. Normal later main commits rebuild this public profile automatically; a new file remains excluded until added deliberately. A material boundary expansion needs owner approval. Contributors must mark private additions and review public-page edits: an allowlist cannot determine whether new prose is a spoiler.
+The whole-story and episode-guide pages are excluded in full. Later episode sections, concept portraits, later development artwork and links to omitted guides are removed from output. Hidden disclosures are not access control. The local audit inventories all 35 original served files; 14 are approved for publication. Approval is recorded in the private policy (`status`, `approved_by`, `approved_at`) after the owner reviews the actual generated preview. Do not set these fields speculatively. Normal later main commits rebuild this public profile automatically; a new file remains excluded until added deliberately. A material boundary expansion needs owner approval. Contributors must mark private additions and review public-page edits: an allowlist cannot determine whether new prose is a spoiler.
 
-The policy starts `pending`. Production assembly refuses it before an output/artifact is created. A local-only preview switch is rejected in CI. No private output may be uploaded to public Actions artifacts, even as a preview. The public tooling's tests use synthetic content only.
+The policy was initially `pending` and is now `approved` after the owner’s explicit go-ahead. The gate still refuses any pending profile before an output/artifact is created. A local-only preview switch is rejected in CI. No private output may be uploaded to public Actions artifacts, even as a preview. The public tooling's tests use synthetic content only.
 
 ## Authentication and trust
 
@@ -96,3 +96,10 @@ Keep its canonical source independent. Add a reviewed mount slug and project car
 - [Official GitHub App token action](https://github.com/actions/create-github-app-token)
 - [Verify a Pages custom domain](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/verifying-your-custom-domain-for-github-pages)
 - [Fine-grained token limitations](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
+
+
+## Current activation checkpoint
+
+CaveOS PR 1 is integrated on main with the approved boundary; its notifier remains skipped because activation is absent. Normal publication-mode assembly passed locally with CI flags enabled and the rendered output matched the reviewed preview. The original standalone private Site was not republished. The FlowLoop migration PR remains unmerged to preserve production.
+
+Owner setup is still required: follow [owner-setup.md](owner-setup.md). The manual `verify-migration.yml` workflow validates the prepared FlowLoop branch against approved CaveOS main, using source credentials and the same assembler/validator. It uploads no artifact and deploys nothing, allowing the credential-backed validation required before domain transfer without changing the old main/root site. No arbitrary refs/event payloads are accepted. Remove this temporary preflight after cutover.
