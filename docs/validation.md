@@ -31,6 +31,8 @@ Browser checks used a loopback-only server and the supported in-app browser. Sta
 - An attempted blanket JS parse discovered two unused legacy `gtag*.js` files are HTML snippets. They are preserved unchanged and are not loaded as scripts; the measured syntax pass covers actual script references and inline blocks.
 - The technical walkthrough's final case has one step, so an initial fixed four-click harness hit a disabled control. The corrected browser check follows actual enabled steps; all five cases pass. These controls are explanatory and made no model/game calls.
 
+- First GitHub synthetic check failed because local-preview test cases inherited the runner's CI environment; the production CI guard correctly rejected them. The test harness now isolates its simulated local environment, while explicit CI-rejection cases restore CI flags. A local rerun with both CI flags enabled passes. No production guard or workflow environment was weakened.
+
 ## Not demonstrated yet
 
 Cross-repository installation-token reads, source-main automatic dispatch, manual production redeploy, a successful Pages artifact/deployment, domain reassignment, live route/HTTPS verification after cutover, source privacy and rollback in production remain **pending**. No credential was provisioned or copied from local OAuth into CI. These are acceptance gates, not completed work.
@@ -39,4 +41,4 @@ The source publication profile is pending owner approval, and activation variabl
 
 ## Remote execution evidence
 
-Pending bootstrap push and GitHub synthetic-check result. No public-source assembly is enabled by this preparation commit.
+Bootstrap run `40207938001` failed in synthetic local-preview cases as described above. Deployment run `40207937882` was skipped because source/publication activation is absent. A corrected synthetic-check run is pending. No public-source assembly is enabled by these preparation commits.

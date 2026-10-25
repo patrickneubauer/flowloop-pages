@@ -20,6 +20,12 @@ vspec.loader.exec_module(validate_module)
 
 class SiteToolsTests(unittest.TestCase):
     def setUp(self):
+        # Synthetic local-preview cases run in a simulated local environment.
+        # CI-rejection tests explicitly restore CI/GITHUB_ACTIONS inside their cases.
+        environment = {k: v for k, v in os.environ.items() if k not in {"CI", "GITHUB_ACTIONS"}}
+        isolated = mock.patch.dict(os.environ, environment, clear=True)
+        isolated.start()
+        self.addCleanup(isolated.stop)
         self.tmp = tempfile.TemporaryDirectory()
         self.base = Path(self.tmp.name)
         self.flow = self.base / "flow"
