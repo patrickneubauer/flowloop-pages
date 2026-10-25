@@ -1,0 +1,34 @@
+# Production cutover and rollback
+
+**Status: not authorized or performed.** The current site remains the production source. These steps require the repository owner/admin; the connected collaborator cannot change Pages settings or visibility. No DNS/email edits are expected.
+
+## Preparation before asking for final cutover approval
+
+1. Review and merge the three preparation branches/PRs. Merging the FlowLoop source changes its current branch-served site, so **do not merge that source PR while it is still the active legacy Pages publisher**. Use a separately tested prepared branch, and merge it during the approved cutover window after disabling/moving the old publisher.
+2. Provision the source-reader and requester credentials described in infrastructure.md; configure main protections and the two central environment branch restrictions. Keep all activation variables off while setup is incomplete.
+3. Review the local proposed CaveOS output at desktop/mobile widths and approve or revise the exact 14-file boundary, including technical explanations and seven images. Record the owner's explicit approval in the private policy only afterward. Merge the CaveOS profile and notifier when reviewed; the private standalone Site is unaffected.
+4. Test a credential-backed assembly from prepared sources without public upload while the profile is pending. After approval, a central build may upload only approved output. Current workflows intentionally read main and do not accept arbitrary refs; a main build cannot succeed against the old unmigrated FlowLoop layout. This is a coordinated source/domain cutover dependency, not a completed acceptance test.
+5. Capture original Pages configuration and source SHA (`de7d4eee45d181e70e30c0a950563f3821fb27fd` at audit). Confirm a verified domain/HTTPS recovery route. Check owner-level custom-domain verification; any DNS TXT addition requires separate approval. Do not change nameservers or MX.
+
+## Approved cutover window
+
+Obtain explicit approval for **domain transfer**, **initial CaveOS public publication**, and later **FlowLoop source privacy**. Approval of one does not imply the others.
+
+1. Record owner approval and chosen scope. Configure Pages on the public deployment repository with GitHub Actions, initially without the custom domain. Confirm its permissions/environment settings; no paid plan is needed.
+2. Stop legacy branch publication / remove `flowloop.io` from the old repository's Pages assignment, without deleting the repository or history. Do not leave the same domain assigned to two Pages sites. GitHub UI/API behavior may require recreating the old Pages configuration on rollback.
+3. Merge the reviewed FlowLoop source migration to main. Its root CNAME is source configuration only once old Pages publication is stopped. Verify author/committer metadata and resulting branch head.
+4. Set central `SOURCE_BUILD_ENABLED=true`, both source `FLOWLOOP_DISPATCH_ENABLED=true`, then trigger a manual central build. Leave `PAGES_DEPLOY_ENABLED` off until the approved build/manifest has been checked.
+5. Assign `flowloop.io` to `flowloop-pages`, confirm Actions as Pages source, enable `PAGES_DEPLOY_ENABLED=true` and run the deployment. DNS records should remain unchanged. GitHub may need time to reissue/attach its certificate; do not disable HTTPS as a shortcut.
+6. Verify HTTPS apex/www redirects, portfolio root, `/flowloop-app/`, `/caveos/`, retained pages/assets, `/privacy.html`, `/download/` and representative old `/static/` resources. Check mobile and keyboard interactions against the generated output. Inspect live manifest revisions and artifact boundary.
+7. Demonstrate one meaningful main commit from each source triggers a successful central publication; use needed documentation corrections rather than empty noise commits. Trigger a manual redeploy. Run a deliberate synthetic failing build/check separately and confirm no deploy job follows; do not sabotage production source to test failure handling.
+8. After replacement production is confirmed healthy and privacy approval is explicit, make `flowloop.io` private. Recheck that `flowloop-pages` is public and is the only Pages publisher, CaveOS remains private and source reads still work. Changing visibility cannot retract previously public history/clones.
+
+Do not claim these live checks from local tests. Mark acceptance complete only after measured remote evidence.
+
+## Rollback
+
+Before source privacy changes: disable central deployment, detach its domain, restore the old source main to the recorded pre-migration revision with a reviewed revert (preserve history), restore Pages `main` + `/`, reassign `flowloop.io`, and confirm HTTPS/routes. The old CNAME and files are in Git history. Coordinate the removal/reassignment to avoid a domain conflict.
+
+After source privacy changes on GitHub Free: the old private repository cannot serve as the same free Pages fallback. Keep `flowloop-pages` as public publisher and revert/rebuild approved source/tooling to a known-good artifact instead. If returning the source repository to public would expose new private changes, it requires a separate explicit decision. Do not make it public automatically.
+
+For routine rollback, review/revert the faulty source commit on its trusted main, let its notifier rebuild, and inspect the resulting manifest. If only tooling failed, revert that tooling change and manually redeploy. Current workflow always assembles both latest mains, so freeze concurrent source changes while recovering an exact earlier combination. Preserve the previous successful Pages deployment until validation passes.

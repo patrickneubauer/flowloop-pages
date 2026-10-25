@@ -1,0 +1,114 @@
+name: Assemble and deploy FlowLoop
+
+on:
+  push:
+    branches: [main]
+  repository_dispatch:
+    types: [source-updated]
+  workflow_dispatch:
+
+# A serial queue prevents an older build from deploying after a newer build.
+# Each run selects current main refs when it starts; dispatch payloads are ignored.
+concurrency:
+  group: flowloop-pages
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  build:
+    if: github.repository == 'patrickneubauer/flowloop-pages' && github.ref == 'refs/heads/main' && vars.SOURCE_BUILD_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    environment: source-read
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    outputs:
+      flowloop_sha: ${{ steps.revisions.outputs.flowloop }}
+      caveos_sha: ${{ steps.revisions.outputs.caveos }}
+    steps:
+      - name: Checkout trusted orchestration
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Check tooling before accessing private sources
+        run: python3 -m unittest discover -s tests -v
+      - name: Mint read-only source installation token
+        if: vars.SOURCE_APP_ID != ''
+        id: app
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2
+        with:
+          app-id: ${{ vars.SOURCE_APP_ID }}
+          private-key: ${{ secrets.SOURCE_APP_PRIVATE_KEY }}
+          owner: patrickneubauer
+          repositories: |
+            flowloop.io
+            caveOS
+          permission-contents: read
+      - name: Verify source credential is provisioned
+        env:
+          SOURCE_TOKEN: ${{ steps.app.outputs.token || secrets.SOURCE_READ_TOKEN }}
+        run: test -n "$SOURCE_TOKEN" || { echo '::error::Provision a source-read credential first.'; exit 1; }
+      - name: Checkout FlowLoop source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: patrickneubauer/flowloop.io
+          ref: main
+          path: .sources/flowloop
+          token: ${{ steps.app.outputs.token || secrets.SOURCE_READ_TOKEN }}
+          persist-credentials: false
+      - name: Checkout CaveOS website source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: patrickneubauer/caveOS
+          ref: main
+          path: .sources/caveos
+          token: ${{ steps.app.outputs.token || secrets.SOURCE_READ_TOKEN }}
+          persist-credentials: false
+          sparse-checkout: website
+      - name: Assemble approved files only
+        run: python3 scripts/assemble-site.py --flowloop .sources/flowloop --caveos .sources/caveos --output ../public-site
+      - name: Validate routes, assets and public boundary
+        run: python3 scripts/validate-site.py --site ../public-site --caveos .sources/caveos
+      - name: Record source revisions
+        id: revisions
+        shell: bash
+        run: |
+          set -euo pipefail
+          flowloop_sha=$(git -C .sources/flowloop rev-parse HEAD)
+          caveos_sha=$(git -C .sources/caveos rev-parse HEAD)
+          echo "flowloop=$flowloop_sha" >> "$GITHUB_OUTPUT"
+          echo "caveos=$caveos_sha" >> "$GITHUB_OUTPUT"
+          echo "FlowLoop source: $flowloop_sha" >> "$GITHUB_STEP_SUMMARY"
+          echo "CaveOS source: $caveos_sha" >> "$GITHUB_STEP_SUMMARY"
+          echo 'The served deployment-manifest.json records revisions and artifact hashes.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload only validated public output
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
+        with:
+          path: ../public-site
+          retention-days: 1
+      - name: Explain failed preparation
+        if: failure()
+        run: echo 'Assembly or validation failed. No new Pages deployment was requested.' >> "$GITHUB_STEP_SUMMARY"
+
+  deploy:
+    needs: build
+    if: vars.PAGES_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configure existing Pages site
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+      - name: Deploy validated artifact
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
+      - name: Explain deployment failure
+        if: failure()
+        run: echo 'Pages deployment failed. Inspect the Pages deployment status before retrying; the workflow never commits generated output.' >> "$GITHUB_STEP_SUMMARY"

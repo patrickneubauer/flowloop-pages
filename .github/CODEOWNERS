@@ -1,0 +1,5 @@
+# Owner review is required operationally; configure enforcement in repository rules.
+/.github/ @patrickneubauer
+/scripts/ @patrickneubauer
+/tests/ @patrickneubauer
+/docs/ @patrickneubauer
