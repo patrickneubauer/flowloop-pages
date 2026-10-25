@@ -41,4 +41,8 @@ The source publication profile is pending owner approval, and activation variabl
 
 ## Remote execution evidence
 
-Bootstrap run `40207938001` failed in synthetic local-preview cases as described above. Deployment run `40207937882` was skipped because source/publication activation is absent. A corrected synthetic-check run is pending. No public-source assembly is enabled by these preparation commits.
+Bootstrap run `40207938001` failed in synthetic local-preview cases as described above. Deployment run `40207937882` was skipped because source/publication activation is absent. Corrected run [40208068685](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40208068685) passed all 13 tests at tooling revision `bda59d3637afaad95aa4fbb92805bd5c5c73ea0a`. Its deployment run `40208068683` was skipped as intended. No public-source assembly is enabled by these preparation commits.
+
+Final local preview was regenerated from clean committed source trees: FlowLoop `bf5a0fc927bd217e8be5e68dddf5bff088c33f93`, CaveOS `42ef2a16d0d4a207c6c7531e9f6687b2c0b1f7a8`, tooling `bda59d3637afaad95aa4fbb92805bd5c5c73ea0a`. Its manifest has 322 hashed files, exactly 14 under CaveOS, all dirty flags false, and the local unapproved marker. The policy remains pending.
+
+Source reviews: [FlowLoop draft PR 1](https://github.com/patrickneubauer/flowloop.io/pull/1), [CaveOS draft PR 1](https://github.com/patrickneubauer/caveOS/pull/1). GitHub mapped both source commits to `patrickneubauer` for author and committer. Production Pages/domain/visibility were rechecked unchanged after preparation push.
