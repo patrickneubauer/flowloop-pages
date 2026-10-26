@@ -17,3 +17,9 @@ In the [Cloudflare dashboard](https://dash.cloudflare.com/), open **Web Analytic
 Web Analytics is client-side measurement. Ad blockers and browser/network conditions can prevent collection; it is not an exact count of every request and is not a replacement for server logs. See [Cloudflare setup](https://developers.cloudflare.com/web-analytics/get-started/) and [measurement limitations](https://developers.cloudflare.com/web-analytics/faq/).
 
 To disable collection, delete/empty `CLOUDFLARE_WEB_ANALYTICS_TOKEN` and redeploy. This removes the beacon from newly served pages; it does not erase already collected data. Hostname changes and deletion of the analytics site are managed in Cloudflare. Do not change existing personal-website analytics while managing FlowLoop.
+
+## Preparation evidence — 26 October 2026
+
+Cloudflare `flowloop.io` was created in the owner's existing account using manual snippet installation, and its public site identifier was set in the repository variable. Seventeen synthetic tests pass, including unchanged legal/private source bytes, exact beacon coverage, deterministic analytics output, invalid-token/duplicate/body refusal and detection of a mismatched site token. The deployment workflow YAML parsed successfully.
+
+Normal real-source assembly/validation passed from clean committed trees with this identifier: FlowLoop `c976566f746d8844687c5c787430928fef716561`, CaveOS `a92f2b3c2c542c07d50cbd528e8e3cdcca4a9fe0`, analytics tooling `f75f5d6`. Comparison with the approved website showed only the five expected HTML snippets and manifest metadata changed. Removing the inserted snippet reproduces each original page byte-for-byte; all other served files are identical. No private CaveOS source change or private Site publication occurred. Live beacon/collection checks await protected-main review and deployment.
