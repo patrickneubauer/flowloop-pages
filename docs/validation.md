@@ -1,4 +1,4 @@
-# Migration validation — 25 October 2026
+# Migration validation — 25–26 October 2026
 
 ## Observed preparation results
 
@@ -35,9 +35,9 @@ Browser checks used a loopback-only server and the supported in-app browser. Sta
 
 ## Not demonstrated yet
 
-Cross-repository installation-token reads, source-main automatic dispatch, manual production redeploy, a successful Pages artifact/deployment, domain reassignment, live route/HTTPS verification after cutover, source privacy and rollback in production remain **pending**. No credential was provisioned or copied from local OAuth into CI. These are acceptance gates, not completed work.
+An actual production rollback/fault drill remains **unperformed**. The owner separately approved making `flowloop.io` private; that change and post-change source reads/deployment succeeded in the privacy checkpoint below. GitHub App installation tokens are not configured; owner-created fine-grained tokens are the measured authentication mechanism. No local OAuth credential was copied into CI.
 
-The source publication profile is now owner-approved; activation variables remain off/absent. The existing production domain and repository visibility remain unchanged. Local tests cannot establish the missing live evidence. A failing synthetic build proves local refusal semantics; it is not a production-failure drill.
+Both source-main automatic publications, manual production publication, Pages artifact/deployment, domain reassignment and live routes/HTTPS are now demonstrated in the production checkpoint below. Thirteen synthetic tests establish approval/validation refusal behavior; no production source was deliberately broken to test a failed rebuild.
 
 ## Remote execution evidence
 
@@ -54,4 +54,54 @@ The owner explicitly approved the proposed 14-file CaveOS profile, including the
 
 Normal assembly/validation ran with `CI=true GITHUB_ACTIONS=true`, no local bypass, using CaveOS approval commit `386d239c846d144f6ed55ae94550384960ca9501`, FlowLoop `bf5a0fc927bd217e8be5e68dddf5bff088c33f93` and tooling `ddbd608273b34c010fb34f203c81f7049eaf5e47`. It passed with 322 total files / 321 hashed files, no local review marker and exactly 14 CaveOS files. Every generated page/asset byte matched the reviewed preview; only revision metadata/local marker differed. Clean source flags were false for all dirty states. Planning validation passed again with 748 links. Browser checks were not repeated for an approval-metadata-only change.
 
-Remote credential-backed validation remains pending: `flowloop` still has no admin permission and the deployment repository has no secrets, environments or variables. Added a manual `verify-migration.yml` preflight and owner checklist so the approved candidate can be checked with real credentials before altering production; no new activation or domain/visibility changes were made.
+At this 25 October checkpoint, remote credential-backed validation remained pending: `flowloop` had no admin permission and the deployment repository had no secrets, environments or variables. This setup gap was resolved by the owner on 26 October, as recorded below. Added a manual `verify-migration.yml` preflight and owner checklist so the approved candidate can be checked with real credentials before altering production; no new activation or domain/visibility changes were made.
+
+## Credential-backed checkpoint — 26 October 2026
+
+The owner configured fine-grained tokens directly in GitHub. The `SOURCE_READ_TOKEN` environment secret exists in deployment `source-read`; `PAGES_DISPATCH_TOKEN` exists as a repository secret in both sources. Values were never read or printed. Both deployment environments restrict branches to main. Pages uses GitHub Actions with an empty custom domain. Active main ruleset `25879207` requires a PR, one approval, CODEOWNERS review, approval of the latest push and the up-to-date `test` check; its bypass list is empty and force pushes are blocked.
+
+[Validate prepared migration run 40327860495](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40327860495) succeeded. Job `121592299336` ran from 13:14:00 to 13:14:13 UTC. All 13 synthetic tests, both token-backed source checkouts, approved assembly and route/asset/boundary validation passed. It used:
+
+| Input | Exact revision |
+| --- | --- |
+| Deployment main | `801b67fca3b148bbcee32fc08ef268bcba7f9211` |
+| Prepared FlowLoop branch | `bf5a0fc927bd217e8be5e68dddf5bff088c33f93` |
+| Approved CaveOS main | `a2afac81d55c41d2bf70690509452e60e29245e7` |
+
+The App-token step skipped because this setup uses the supported fine-grained-token fallback. No artifact was uploaded and no deployment was attempted.
+
+For a bounded requester smoke test, CaveOS’s previously absent `FLOWLOOP_DISPATCH_ENABLED` variable was temporarily set to true and its notifier was manually dispatched on main. [Run 40329332895](https://github.com/patrickneubauer/caveOS/actions/runs/40329332895) succeeded using `PAGES_DISPATCH_TOKEN`. It caused the central [repository_dispatch run 40329351990](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40329351990), created at 13:17:50 UTC, to skip because central activation remained absent. The temporary CaveOS variable was deleted and absent variables were rechecked afterward. This proves the CaveOS requester credential and event delivery, not an automatic source-push rebuild or successful publication. FlowLoop’s copy of the requester secret remains unexercised.
+
+Production domain assignment, DNS/email and repository visibility are unchanged. The FlowLoop migration PR remains unmerged. Central `SOURCE_BUILD_ENABLED`, `PAGES_DEPLOY_ENABLED` and both source notifier activation variables remain absent/off. Domain cutover still requires explicit owner approval; source privacy requires a later separate approval after live acceptance.
+
+## Cutover authorization checkpoint — 26 October 2026
+
+The owner explicitly approved transferring the production domain to `flowloop-pages` and publishing the prepared portfolio. Execution has not begun: the connected collaborator has `admin=false`; available browser sessions are signed out or use that collaborator. An owner-authenticated session is required. Rechecked source mains remain at FlowLoop `de7d4eee45d181e70e30c0a950563f3821fb27fd` and CaveOS `a2afac81d55c41d2bf70690509452e60e29245e7`; the prepared FlowLoop branch remains `bf5a0fc927bd217e8be5e68dddf5bff088c33f93`. The old Pages domain remains assigned, the migration PR remains unmerged and central activation variables remain absent. Source privacy is not authorized.
+
+## Production cutover — 26 October 2026
+
+After explicit owner approval, an owner-authenticated Codex browser session changed the old Pages source from legacy branch publishing to Actions before the FlowLoop migration was fast-forwarded to main. Its two original reviewed commits retain Patrick Neubauer as author/committer. The old domain assignment was retained during the replacement build to reduce disruption, then removed and assigned to `flowloop-pages`. HTTPS enforcement is enabled with an approved apex/www certificate expiring 20 January 2027. Once replacement checks passed, the old Pages site was unpublished. DNS/email and private standalone CaveOS hosting were untouched.
+
+| Measured event | Evidence / result |
+| --- | --- |
+| Main-source build before domain move | [40335639956](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40335639956): successful build/validation/upload; deploy skipped |
+| Manual redeployment of final source revisions | [40337030980](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40337030980): successful build and deploy |
+| First production publication | [40336006632](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40336006632): successful build and deploy |
+| FlowLoop main push | Source `71a612e1e0e804e34ff1bf7663d5b174aa9e3eac`; [notifier 40336515077](https://github.com/patrickneubauer/flowloop.io/actions/runs/40336515077) and [central publication 40336537092](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40336537092) both succeeded |
+| CaveOS main push | Source `a92f2b3c2c542c07d50cbd528e8e3cdcca4a9fe0`; [notifier 40336730156](https://github.com/patrickneubauer/caveOS/actions/runs/40336730156) and [central publication 40336748438](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40336748438) both succeeded |
+
+Both main-push checks used necessary publication-status documentation updates; no empty commits or game changes were introduced. The served manifest then recorded those two source revisions and orchestration `801b67fca3b148bbcee32fc08ef268bcba7f9211`, all dirty flags false, 321 hashed files and exactly 14 CaveOS files. Both source notifier flags and central build/deploy flags are enabled.
+
+Live HTTPS verification compared all 319 served content files with their SHA256 manifest entries: zero mismatches. CNAME and .nojekyll deployment metadata were excluded from HTTP checks. Root, app, CaveOS home/technical/credits, root privacy and download routes returned 200. HTTP/apex/www and missing project trailing slashes redirected to HTTPS apex routes. Excluded CaveOS story/episode pages and Archive image returned 404. The first verification harness omitted URL encoding for legacy filenames containing spaces; correcting encoding yielded the pass without changing production.
+
+The supported browser rendered the live root, app and CaveOS home at 390px with no horizontal document overflow or failed loaded images. CaveOS gallery advanced from 1/2 to 2/2, Escape closed it, TALK selected its panel and the build-info dialog opened/closed. Earlier full local technical/keyboard/responsive checks remain applicable because served website bytes match the approved artifact. Desktop/mobile screenshots stay local outside repositories.
+
+The first production dispatch request returned GitHub HTTP 500 and created no run; a checked retry succeeded. No approval or security guard was bypassed. At this cutover checkpoint, source privacy and a real production rollback/fault drill remained unperformed. The privacy checkpoint below records the subsequent approved visibility change.
+
+## Source privacy checkpoint — 26 October 2026
+
+The owner explicitly approved making `patrickneubauer/flowloop.io` private after the production acceptance report. The owner-authenticated browser completed that visibility change, and authenticated repository metadata confirmed `flowloop.io` private, CaveOS private and `flowloop-pages` public. No credentials, DNS/email, domain assignment or CaveOS private Site settings were changed. Existing public history/clones are not retracted by this change.
+
+[Post-privacy deployment 40339545186](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40339545186) passed all 13 tests, both private-source checkouts, approved assembly/validation, artifact upload and Pages deployment. This verifies the owner-created fine-grained reader still works when both source repositories are private; the GitHub App alternative remains unconfigured.
+
+The required source README visibility update at `c976566f746d8844687c5c787430928fef716561` then triggered [private-source notifier 40339735007](https://github.com/patrickneubauer/flowloop.io/actions/runs/40339735007) and [automatic central publication 40339755127](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40339755127); both succeeded. The existing requester credential and enabled source-main trigger therefore also work after the source became private.

@@ -2,15 +2,15 @@
 
 ## Ownership and current state
 
-Audit date: **25 October 2026**. Domain registrar and authoritative DNS: Namecheap BasicDNS. Website hosting: GitHub Pages, with no paid hosting dependency. The connected account is `flowloop`, a write collaborator; the owner is `patrickneubauer`. Write access does not grant repository administration.
+Baseline audit: **25 October 2026**; credential/settings checkpoint: **26 October 2026**. Domain registrar and authoritative DNS: Namecheap BasicDNS. Website hosting: GitHub Pages, with no paid hosting dependency. The connected account is `flowloop`, a write collaborator; the owner is `patrickneubauer`. Write access does not grant repository administration.
 
-| Repository | Audited visibility | Responsibility / target |
+| Repository | Current visibility | Responsibility |
 | --- | --- | --- |
-| `patrickneubauer/flowloop.io` | Public | Canonical portfolio and original app; private only after approved, verified cutover |
+| `patrickneubauer/flowloop.io` | Private | Canonical portfolio and original app; owner-approved privacy change completed after healthy cutover |
 | `patrickneubauer/caveOS` | Private | Canonical game and `website/`; stays private |
 | `patrickneubauer/flowloop-pages` | Public | Publication tooling and Pages artifact deployment |
 
-The old source repository currently hosts Pages from `main` and `/`, with custom domain `flowloop.io`, HTTPS enforced and an approved certificate for apex and www (audited expiry 20 January 2027). Apex and `/privacy.html` returned HTTP 200. `flowloop-pages` was an empty existing repository with no Pages configuration and no Actions secrets. No remote repository was recreated. Existing checkouts were inspected before cloning. The coordination directory is not a new Git repository; an unrelated pre-existing ancestor repository was left untouched.
+At the baseline audit, the old source repository hosted Pages from `main` and `/`, with custom domain `flowloop.io`, HTTPS enforced and an approved certificate for apex and www (audited expiry 20 January 2027). Apex and `/privacy.html` returned HTTP 200. At the baseline audit, `flowloop-pages` was an empty existing repository with no Pages configuration and no Actions secrets. The owner has since configured the credentials/settings described in the activation checkpoint below. No remote repository was recreated. Existing checkouts were inspected before cloning. The coordination directory is not a new Git repository; an unrelated pre-existing ancestor repository was left untouched.
 
 ## Static site assembly
 
@@ -100,6 +100,16 @@ Keep its canonical source independent. Add a reviewed mount slug and project car
 
 ## Current activation checkpoint
 
-CaveOS PR 1 is integrated on main with the approved boundary; its notifier remains skipped because activation is absent. Normal publication-mode assembly passed locally with CI flags enabled and the rendered output matched the reviewed preview. The original standalone private Site was not republished. The FlowLoop migration PR remains unmerged to preserve production.
+CaveOS PR 1 is integrated on main with the approved boundary; its notifier remains skipped because activation is absent. Normal publication-mode assembly passed locally with CI flags enabled and the rendered output matched the reviewed preview. The original standalone private Site was not republished. The following preflight checkpoint predates the production cutover recorded below.
 
-Owner setup is still required: follow [owner-setup.md](owner-setup.md). The manual `verify-migration.yml` workflow validates the prepared FlowLoop branch against approved CaveOS main, using source credentials and the same assembler/validator. It uploads no artifact and deploys nothing, allowing the credential-backed validation required before domain transfer without changing the old main/root site. No arbitrary refs/event payloads are accepted. Remove this temporary preflight after cutover.
+Owner setup is complete as of 26 October 2026: fine-grained token secrets are present in their intended locations, both environments allow only main, Pages uses GitHub Actions with no custom domain, and main ruleset `25879207` requires one approval, CODEOWNERS review, approval of the latest push and an up-to-date `test` check, with no bypass. All activation variables remain absent/off. See [owner setup](owner-setup.md) for credential rotation.
+
+The manual [prepared migration run 40327860495](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40327860495) passed using the source-reader token and the same assembler/validator. It uploaded/deployed nothing. A [CaveOS requester smoke test](https://github.com/patrickneubauer/caveOS/actions/runs/40329332895) successfully dispatched to the central workflow, which [skipped as intended](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40329351990); the temporary notifier flag was deleted afterward. FlowLoop’s stored requester secret has not yet been exercised, and no actual Pages publication or source-main automatic rebuild has been demonstrated. See [validation evidence](validation.md). The temporary preflight accepts no arbitrary refs/event payloads and can be removed after cutover.
+
+## Production checkpoint — 26 October 2026
+
+The owner separately approved the domain transfer and portfolio publication. Legacy branch publication was stopped before the two reviewed FlowLoop commits were fast-forwarded to main, preserving their author/committer metadata and rename history. A build-only run passed, then the owner browser session removed the old Pages domain and assigned it to this repository. The existing certificate is approved for apex/www and HTTPS enforcement is enabled. The old source Pages site is unpublished; no source workflow deploys it. No DNS or email setting changed.
+
+The [first production deployment](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40336006632) and subsequent automatic publications from [FlowLoop](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40336537092) and [CaveOS](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40336748438) passed. Central `SOURCE_BUILD_ENABLED` and `PAGES_DEPLOY_ENABLED`, plus each source `FLOWLOOP_DISPATCH_ENABLED`, are true. All 319 served content-file hashes matched the live manifest, public routes/redirects passed, and sampled excluded CaveOS paths returned 404. See [validation evidence](validation.md) for exact revisions, browser checks and limits.
+
+`flowloop.io` was made private on 26 October 2026 after separate explicit owner approval and healthy live acceptance. CaveOS stays private; this deployment repository stays public. [Post-change deployment 40339545186](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40339545186) successfully read both private sources and deployed. A real production rollback/fault drill has not been performed; synthetic refusal tests pass.
