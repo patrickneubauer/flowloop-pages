@@ -5,14 +5,14 @@
 ## Preparation before asking for final cutover approval
 
 1. Review and merge the three preparation branches/PRs. Merging the FlowLoop source changes its current branch-served site, so **do not merge that source PR while it is still the active legacy Pages publisher**. Use a separately tested prepared branch, and merge it during the approved cutover window after disabling/moving the old publisher.
-2. Provision the source-reader and requester credentials described in infrastructure.md; configure main protections and the two central environment branch restrictions. Keep all activation variables off while setup is incomplete.
+2. Completed and verified on 26 October 2026: owner-created source-reader and requester secrets, main review protections, `source-read` and `github-pages` environments restricted to main, and Pages GitHub Actions source. The deployment custom domain is empty. All activation variables remain absent/off.
 3. Completed on 25 October 2026: the owner approved the exact 14-file CaveOS boundary, including technical explanations and seven images. Approval is recorded in the private policy and the reviewed CaveOS change is on main. The standalone private Site is unaffected.
-4. After [owner setup](owner-setup.md), run **Validate prepared migration** on deployment main. It uses the reviewed FlowLoop migration branch and approved CaveOS main, validates using real source credentials, and uploads/deploys nothing. Normal publication continues to use main only. The preflight is required before cutover; it has not run remotely yet because credentials are absent.
+4. Completed on 26 October 2026: [Validate prepared migration run 40327860495](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40327860495) passed against the reviewed FlowLoop branch and approved CaveOS main using the source-reader token; it uploaded/deployed nothing. A CaveOS manual requester smoke test reached the central workflow, which skipped with publication gates off. Normal publication continues to read main only. Automatic publication from both source-main pushes remains to be demonstrated after cutover; see [evidence and exact revisions](validation.md#credential-backed-checkpoint--26-october-2026).
 5. Capture original Pages configuration and source SHA (`de7d4eee45d181e70e30c0a950563f3821fb27fd` at audit). Confirm a verified domain/HTTPS recovery route. Check owner-level custom-domain verification; any DNS TXT addition requires separate approval. Do not change nameservers or MX.
 
 ## Approved cutover window
 
-Obtain explicit approval for **domain transfer**, **initial CaveOS public publication**, and later **FlowLoop source privacy**. Approval of one does not imply the others.
+Initial CaveOS public publication was approved on 25 October 2026. Obtain explicit approval for **domain transfer**, and later **FlowLoop source privacy**. Approval of one does not imply the others.
 
 1. Record owner approval and chosen scope. Configure Pages on the public deployment repository with GitHub Actions, initially without the custom domain. Confirm its permissions/environment settings; no paid plan is needed.
 2. Stop legacy branch publication / remove `flowloop.io` from the old repository's Pages assignment, without deleting the repository or history. Do not leave the same domain assigned to two Pages sites. GitHub UI/API behavior may require recreating the old Pages configuration on rollback.

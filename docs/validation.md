@@ -1,4 +1,4 @@
-# Migration validation — 25 October 2026
+# Migration validation — 25–26 October 2026
 
 ## Observed preparation results
 
@@ -35,7 +35,7 @@ Browser checks used a loopback-only server and the supported in-app browser. Sta
 
 ## Not demonstrated yet
 
-Cross-repository installation-token reads, source-main automatic dispatch, manual production redeploy, a successful Pages artifact/deployment, domain reassignment, live route/HTTPS verification after cutover, source privacy and rollback in production remain **pending**. No credential was provisioned or copied from local OAuth into CI. These are acceptance gates, not completed work.
+Source-main automatic dispatch from both repositories, exercising FlowLoop’s stored requester secret, manual production redeploy, a successful Pages artifact/deployment, domain reassignment, live route/HTTPS verification after cutover, source privacy and rollback in production remain **pending**. Owner-created fine-grained tokens are configured; source reads and a CaveOS manual dispatch are proven in the 26 October checkpoint below. GitHub App installation tokens are not configured or claimed as tested. No local OAuth credential was copied into CI. These remaining items are acceptance gates, not completed work.
 
 The source publication profile is now owner-approved; activation variables remain off/absent. The existing production domain and repository visibility remain unchanged. Local tests cannot establish the missing live evidence. A failing synthetic build proves local refusal semantics; it is not a production-failure drill.
 
@@ -54,4 +54,22 @@ The owner explicitly approved the proposed 14-file CaveOS profile, including the
 
 Normal assembly/validation ran with `CI=true GITHUB_ACTIONS=true`, no local bypass, using CaveOS approval commit `386d239c846d144f6ed55ae94550384960ca9501`, FlowLoop `bf5a0fc927bd217e8be5e68dddf5bff088c33f93` and tooling `ddbd608273b34c010fb34f203c81f7049eaf5e47`. It passed with 322 total files / 321 hashed files, no local review marker and exactly 14 CaveOS files. Every generated page/asset byte matched the reviewed preview; only revision metadata/local marker differed. Clean source flags were false for all dirty states. Planning validation passed again with 748 links. Browser checks were not repeated for an approval-metadata-only change.
 
-Remote credential-backed validation remains pending: `flowloop` still has no admin permission and the deployment repository has no secrets, environments or variables. Added a manual `verify-migration.yml` preflight and owner checklist so the approved candidate can be checked with real credentials before altering production; no new activation or domain/visibility changes were made.
+At this 25 October checkpoint, remote credential-backed validation remained pending: `flowloop` had no admin permission and the deployment repository had no secrets, environments or variables. This setup gap was resolved by the owner on 26 October, as recorded below. Added a manual `verify-migration.yml` preflight and owner checklist so the approved candidate can be checked with real credentials before altering production; no new activation or domain/visibility changes were made.
+
+## Credential-backed checkpoint — 26 October 2026
+
+The owner configured fine-grained tokens directly in GitHub. The `SOURCE_READ_TOKEN` environment secret exists in deployment `source-read`; `PAGES_DISPATCH_TOKEN` exists as a repository secret in both sources. Values were never read or printed. Both deployment environments restrict branches to main. Pages uses GitHub Actions with an empty custom domain. Active main ruleset `25879207` requires a PR, one approval, CODEOWNERS review, approval of the latest push and the up-to-date `test` check; its bypass list is empty and force pushes are blocked.
+
+[Validate prepared migration run 40327860495](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40327860495) succeeded. Job `121592299336` ran from 13:14:00 to 13:14:13 UTC. All 13 synthetic tests, both token-backed source checkouts, approved assembly and route/asset/boundary validation passed. It used:
+
+| Input | Exact revision |
+| --- | --- |
+| Deployment main | `801b67fca3b148bbcee32fc08ef268bcba7f9211` |
+| Prepared FlowLoop branch | `bf5a0fc927bd217e8be5e68dddf5bff088c33f93` |
+| Approved CaveOS main | `a2afac81d55c41d2bf70690509452e60e29245e7` |
+
+The App-token step skipped because this setup uses the supported fine-grained-token fallback. No artifact was uploaded and no deployment was attempted.
+
+For a bounded requester smoke test, CaveOS’s previously absent `FLOWLOOP_DISPATCH_ENABLED` variable was temporarily set to true and its notifier was manually dispatched on main. [Run 40329332895](https://github.com/patrickneubauer/caveOS/actions/runs/40329332895) succeeded using `PAGES_DISPATCH_TOKEN`. It caused the central [repository_dispatch run 40329351990](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40329351990), created at 13:17:50 UTC, to skip because central activation remained absent. The temporary CaveOS variable was deleted and absent variables were rechecked afterward. This proves the CaveOS requester credential and event delivery, not an automatic source-push rebuild or successful publication. FlowLoop’s copy of the requester secret remains unexercised.
+
+Production domain assignment, DNS/email and repository visibility are unchanged. The FlowLoop migration PR remains unmerged. Central `SOURCE_BUILD_ENABLED`, `PAGES_DEPLOY_ENABLED` and both source notifier activation variables remain absent/off. Domain cutover still requires explicit owner approval; source privacy requires a later separate approval after live acceptance.
