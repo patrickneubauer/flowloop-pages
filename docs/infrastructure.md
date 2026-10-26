@@ -4,9 +4,9 @@
 
 Baseline audit: **25 October 2026**; credential/settings checkpoint: **26 October 2026**. Domain registrar and authoritative DNS: Namecheap BasicDNS. Website hosting: GitHub Pages, with no paid hosting dependency. The connected account is `flowloop`, a write collaborator; the owner is `patrickneubauer`. Write access does not grant repository administration.
 
-| Repository | Audited visibility | Responsibility / target |
+| Repository | Current visibility | Responsibility |
 | --- | --- | --- |
-| `patrickneubauer/flowloop.io` | Public | Canonical portfolio and original app; private only after approved, verified cutover |
+| `patrickneubauer/flowloop.io` | Private | Canonical portfolio and original app; owner-approved privacy change completed after healthy cutover |
 | `patrickneubauer/caveOS` | Private | Canonical game and `website/`; stays private |
 | `patrickneubauer/flowloop-pages` | Public | Publication tooling and Pages artifact deployment |
 
@@ -112,4 +112,4 @@ The owner separately approved the domain transfer and portfolio publication. Leg
 
 The [first production deployment](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40336006632) and subsequent automatic publications from [FlowLoop](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40336537092) and [CaveOS](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40336748438) passed. Central `SOURCE_BUILD_ENABLED` and `PAGES_DEPLOY_ENABLED`, plus each source `FLOWLOOP_DISPATCH_ENABLED`, are true. All 319 served content-file hashes matched the live manifest, public routes/redirects passed, and sampled excluded CaveOS paths returned 404. See [validation evidence](validation.md) for exact revisions, browser checks and limits.
 
-`flowloop.io` remains public until the owner separately approves privacy after live acceptance. CaveOS stays private; this deployment repository stays public. A real production rollback/fault drill has not been performed; synthetic refusal tests pass.
+`flowloop.io` was made private on 26 October 2026 after separate explicit owner approval and healthy live acceptance. CaveOS stays private; this deployment repository stays public. [Post-change deployment 40339545186](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40339545186) successfully read both private sources and deployed. A real production rollback/fault drill has not been performed; synthetic refusal tests pass.

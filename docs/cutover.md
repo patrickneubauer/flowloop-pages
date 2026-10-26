@@ -1,6 +1,6 @@
 # Production cutover and rollback
 
-**Status: domain transfer and publication completed on 26 October 2026 after explicit owner approval.** `flowloop-pages` holds `flowloop.io`, uses Actions and enforces HTTPS. The former branch publisher was stopped before the source migration merge, then unpublished after replacement verification. Both source-push publication checks passed. DNS/email are unchanged. Source privacy remains unperformed and requires separate approval; a production rollback/fault drill has not been run. The sequence below remains the recovery/reproduction reference. See [actual execution evidence](validation.md#production-cutover--26-october-2026).
+**Status: domain transfer and publication completed on 26 October 2026 after explicit owner approval.** `flowloop-pages` holds `flowloop.io`, uses Actions and enforces HTTPS. The former branch publisher was stopped before the source migration merge, then unpublished after replacement verification. Both source-push publication checks passed. DNS/email are unchanged. Source privacy was separately approved and completed on 26 October; the post-change private-source deployment passed. A production rollback/fault drill has not been run. The sequence below remains the recovery/reproduction reference. See [actual execution evidence](validation.md#production-cutover--26-october-2026).
 
 ## Preparation before asking for final cutover approval
 
@@ -12,7 +12,7 @@
 
 ## Approved cutover window
 
-Initial CaveOS public publication was approved on 25 October 2026. The owner explicitly approved **production domain transfer and publishing the prepared portfolio** on 26 October 2026. **FlowLoop source privacy** still needs separate approval after live verification. Approval of one does not imply the others.
+Initial CaveOS public publication was approved on 25 October 2026. The owner explicitly approved **production domain transfer and publishing the prepared portfolio** on 26 October 2026. **FlowLoop source privacy** was separately approved and completed after live verification on 26 October 2026. Approval of one does not imply the others.
 
 1. Record owner approval and chosen scope. Configure Pages on the public deployment repository with GitHub Actions, initially without the custom domain. Confirm its permissions/environment settings; no paid plan is needed.
 2. Stop legacy branch publication / remove `flowloop.io` from the old repository's Pages assignment, without deleting the repository or history. Do not leave the same domain assigned to two Pages sites. GitHub UI/API behavior may require recreating the old Pages configuration on rollback.

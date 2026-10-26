@@ -2,7 +2,7 @@
 
 Public deployment orchestration for [FlowLoop.io](https://flowloop.io/). Editable websites live in `patrickneubauer/flowloop.io` and `patrickneubauer/caveOS`; this repository contains no generated website or private CaveOS content.
 
-**Production state, 26 October 2026:** the owner-approved portfolio is live at [flowloop.io](https://flowloop.io/), the original app at [/flowloop-app/](https://flowloop.io/flowloop-app/) and the approved CaveOS subset at [/caveos/](https://flowloop.io/caveos/). This repository holds the custom domain and enforces HTTPS; the old source Pages site is unpublished. Both source-main notifications and central publication switches are enabled. Source-push publications from both repositories passed. The FlowLoop source remains public pending separate owner approval; DNS/email are unchanged. See [validation evidence](docs/validation.md).
+**Production state, 26 October 2026:** the owner-approved portfolio is live at [flowloop.io](https://flowloop.io/), the original app at [/flowloop-app/](https://flowloop.io/flowloop-app/) and the approved CaveOS subset at [/caveos/](https://flowloop.io/caveos/). This repository holds the custom domain and enforces HTTPS; the old source Pages site is unpublished. Both source-main notifications and central publication switches are enabled. Source-push publications from both repositories passed. The FlowLoop source is private after separate owner approval and a successful post-change deployment; DNS/email are unchanged. See [validation evidence](docs/validation.md).
 
 ## Local assembly
 

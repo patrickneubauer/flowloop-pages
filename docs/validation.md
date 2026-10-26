@@ -35,7 +35,7 @@ Browser checks used a loopback-only server and the supported in-app browser. Sta
 
 ## Not demonstrated yet
 
-Making `flowloop.io` private, verifying source reads after that visibility change, and an actual production rollback/fault drill remain **pending**. Source privacy needs separate owner approval. GitHub App installation tokens are not configured; owner-created fine-grained tokens are the measured authentication mechanism. No local OAuth credential was copied into CI.
+An actual production rollback/fault drill remains **unperformed**. The owner separately approved making `flowloop.io` private; that change and post-change source reads/deployment succeeded in the privacy checkpoint below. GitHub App installation tokens are not configured; owner-created fine-grained tokens are the measured authentication mechanism. No local OAuth credential was copied into CI.
 
 Both source-main automatic publications, manual production publication, Pages artifact/deployment, domain reassignment and live routes/HTTPS are now demonstrated in the production checkpoint below. Thirteen synthetic tests establish approval/validation refusal behavior; no production source was deliberately broken to test a failed rebuild.
 
@@ -96,4 +96,12 @@ Live HTTPS verification compared all 319 served content files with their SHA256 
 
 The supported browser rendered the live root, app and CaveOS home at 390px with no horizontal document overflow or failed loaded images. CaveOS gallery advanced from 1/2 to 2/2, Escape closed it, TALK selected its panel and the build-info dialog opened/closed. Earlier full local technical/keyboard/responsive checks remain applicable because served website bytes match the approved artifact. Desktop/mobile screenshots stay local outside repositories.
 
-The first production dispatch request returned GitHub HTTP 500 and created no run; a checked retry succeeded. No approval or security guard was bypassed. Source privacy and a real production rollback/fault drill remain unperformed.
+The first production dispatch request returned GitHub HTTP 500 and created no run; a checked retry succeeded. No approval or security guard was bypassed. At this cutover checkpoint, source privacy and a real production rollback/fault drill remained unperformed. The privacy checkpoint below records the subsequent approved visibility change.
+
+## Source privacy checkpoint — 26 October 2026
+
+The owner explicitly approved making `patrickneubauer/flowloop.io` private after the production acceptance report. The owner-authenticated browser completed that visibility change, and authenticated repository metadata confirmed `flowloop.io` private, CaveOS private and `flowloop-pages` public. No credentials, DNS/email, domain assignment or CaveOS private Site settings were changed. Existing public history/clones are not retracted by this change.
+
+[Post-privacy deployment 40339545186](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40339545186) passed all 13 tests, both private-source checkouts, approved assembly/validation, artifact upload and Pages deployment. This verifies the owner-created fine-grained reader still works when both source repositories are private; the GitHub App alternative remains unconfigured.
+
+The required source README visibility update at `c976566f746d8844687c5c787430928fef716561` then triggered [private-source notifier 40339735007](https://github.com/patrickneubauer/flowloop.io/actions/runs/40339735007) and [automatic central publication 40339755127](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40339755127); both succeeded. The existing requester credential and enabled source-main trigger therefore also work after the source became private.
