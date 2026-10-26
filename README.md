@@ -2,7 +2,7 @@
 
 Public deployment orchestration for [FlowLoop.io](https://flowloop.io/). Editable websites live in `patrickneubauer/flowloop.io` and `patrickneubauer/caveOS`; this repository contains no generated website or private CaveOS content.
 
-**Preparation state, 26 October 2026:** production still publishes from the existing FlowLoop source repository. CaveOS’s public boundary is owner-approved and integrated on its main; the FlowLoop migration remains a draft until cutover. Owner-configured credentials, Pages Actions source, main protections and environment branch restrictions are verified. Credential-backed prepared-site validation and a CaveOS requester smoke test passed; publication switches remain absent/off. Domain transfer and source privacy still require separate approval. See [validation evidence](docs/validation.md).
+**Preparation state, 26 October 2026:** production still publishes from the existing FlowLoop source repository. CaveOS’s public boundary is owner-approved and integrated on its main; the FlowLoop migration remains a draft until cutover. Owner-configured credentials, Pages Actions source, main protections and environment branch restrictions are verified. Credential-backed prepared-site validation and a CaveOS requester smoke test passed; publication switches remain absent/off. The owner approved domain transfer and portfolio publication on 26 October; execution awaits an owner-authenticated GitHub session. Source privacy still requires separate approval after live verification. See [validation evidence](docs/validation.md).
 
 ## Local assembly
 

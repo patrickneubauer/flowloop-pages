@@ -1,6 +1,6 @@
 # Production cutover and rollback
 
-**Status: not authorized or performed.** The current site remains the production source. These steps require the repository owner/admin; the connected collaborator cannot change Pages settings or visibility. No DNS/email edits are expected.
+**Status: owner approved production domain transfer and publication on 26 October 2026; not performed yet.** The current site remains the production source. Execution is waiting for an owner-authenticated GitHub session: the connected `flowloop` collaborator has no administration permission. Source privacy remains a separate later decision. No DNS/email edits are expected.
 
 ## Preparation before asking for final cutover approval
 
@@ -12,7 +12,7 @@
 
 ## Approved cutover window
 
-Initial CaveOS public publication was approved on 25 October 2026. Obtain explicit approval for **domain transfer**, and later **FlowLoop source privacy**. Approval of one does not imply the others.
+Initial CaveOS public publication was approved on 25 October 2026. The owner explicitly approved **production domain transfer and publishing the prepared portfolio** on 26 October 2026. **FlowLoop source privacy** still needs separate approval after live verification. Approval of one does not imply the others.
 
 1. Record owner approval and chosen scope. Configure Pages on the public deployment repository with GitHub Actions, initially without the custom domain. Confirm its permissions/environment settings; no paid plan is needed.
 2. Stop legacy branch publication / remove `flowloop.io` from the old repository's Pages assignment, without deleting the repository or history. Do not leave the same domain assigned to two Pages sites. GitHub UI/API behavior may require recreating the old Pages configuration on rollback.
