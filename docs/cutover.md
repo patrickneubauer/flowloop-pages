@@ -1,6 +1,6 @@
 # Production cutover and rollback
 
-**Status: owner approved production domain transfer and publication on 26 October 2026; not performed yet.** The current site remains the production source. Execution is waiting for an owner-authenticated GitHub session: the connected `flowloop` collaborator has no administration permission. Source privacy remains a separate later decision. No DNS/email edits are expected.
+**Status: domain transfer and publication completed on 26 October 2026 after explicit owner approval.** `flowloop-pages` holds `flowloop.io`, uses Actions and enforces HTTPS. The former branch publisher was stopped before the source migration merge, then unpublished after replacement verification. Both source-push publication checks passed. DNS/email are unchanged. Source privacy remains unperformed and requires separate approval; a production rollback/fault drill has not been run. The sequence below remains the recovery/reproduction reference. See [actual execution evidence](validation.md#production-cutover--26-october-2026).
 
 ## Preparation before asking for final cutover approval
 

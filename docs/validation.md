@@ -35,9 +35,9 @@ Browser checks used a loopback-only server and the supported in-app browser. Sta
 
 ## Not demonstrated yet
 
-Source-main automatic dispatch from both repositories, exercising FlowLoop’s stored requester secret, manual production redeploy, a successful Pages artifact/deployment, domain reassignment, live route/HTTPS verification after cutover, source privacy and rollback in production remain **pending**. Owner-created fine-grained tokens are configured; source reads and a CaveOS manual dispatch are proven in the 26 October checkpoint below. GitHub App installation tokens are not configured or claimed as tested. No local OAuth credential was copied into CI. These remaining items are acceptance gates, not completed work.
+Making `flowloop.io` private, verifying source reads after that visibility change, and an actual production rollback/fault drill remain **pending**. Source privacy needs separate owner approval. GitHub App installation tokens are not configured; owner-created fine-grained tokens are the measured authentication mechanism. No local OAuth credential was copied into CI.
 
-The source publication profile is now owner-approved; activation variables remain off/absent. The existing production domain and repository visibility remain unchanged. Local tests cannot establish the missing live evidence. A failing synthetic build proves local refusal semantics; it is not a production-failure drill.
+Both source-main automatic publications, manual production publication, Pages artifact/deployment, domain reassignment and live routes/HTTPS are now demonstrated in the production checkpoint below. Thirteen synthetic tests establish approval/validation refusal behavior; no production source was deliberately broken to test a failed rebuild.
 
 ## Remote execution evidence
 
@@ -77,3 +77,23 @@ Production domain assignment, DNS/email and repository visibility are unchanged.
 ## Cutover authorization checkpoint — 26 October 2026
 
 The owner explicitly approved transferring the production domain to `flowloop-pages` and publishing the prepared portfolio. Execution has not begun: the connected collaborator has `admin=false`; available browser sessions are signed out or use that collaborator. An owner-authenticated session is required. Rechecked source mains remain at FlowLoop `de7d4eee45d181e70e30c0a950563f3821fb27fd` and CaveOS `a2afac81d55c41d2bf70690509452e60e29245e7`; the prepared FlowLoop branch remains `bf5a0fc927bd217e8be5e68dddf5bff088c33f93`. The old Pages domain remains assigned, the migration PR remains unmerged and central activation variables remain absent. Source privacy is not authorized.
+
+## Production cutover — 26 October 2026
+
+After explicit owner approval, an owner-authenticated Codex browser session changed the old Pages source from legacy branch publishing to Actions before the FlowLoop migration was fast-forwarded to main. Its two original reviewed commits retain Patrick Neubauer as author/committer. The old domain assignment was retained during the replacement build to reduce disruption, then removed and assigned to `flowloop-pages`. HTTPS enforcement is enabled with an approved apex/www certificate expiring 20 January 2027. Once replacement checks passed, the old Pages site was unpublished. DNS/email and private standalone CaveOS hosting were untouched.
+
+| Measured event | Evidence / result |
+| --- | --- |
+| Main-source build before domain move | [40335639956](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40335639956): successful build/validation/upload; deploy skipped |
+| Manual redeployment of final source revisions | [40337030980](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40337030980): successful build and deploy |
+| First production publication | [40336006632](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40336006632): successful build and deploy |
+| FlowLoop main push | Source `71a612e1e0e804e34ff1bf7663d5b174aa9e3eac`; [notifier 40336515077](https://github.com/patrickneubauer/flowloop.io/actions/runs/40336515077) and [central publication 40336537092](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40336537092) both succeeded |
+| CaveOS main push | Source `a92f2b3c2c542c07d50cbd528e8e3cdcca4a9fe0`; [notifier 40336730156](https://github.com/patrickneubauer/caveOS/actions/runs/40336730156) and [central publication 40336748438](https://github.com/patrickneubauer/flowloop-pages/actions/runs/40336748438) both succeeded |
+
+Both main-push checks used necessary publication-status documentation updates; no empty commits or game changes were introduced. The served manifest then recorded those two source revisions and orchestration `801b67fca3b148bbcee32fc08ef268bcba7f9211`, all dirty flags false, 321 hashed files and exactly 14 CaveOS files. Both source notifier flags and central build/deploy flags are enabled.
+
+Live HTTPS verification compared all 319 served content files with their SHA256 manifest entries: zero mismatches. CNAME and .nojekyll deployment metadata were excluded from HTTP checks. Root, app, CaveOS home/technical/credits, root privacy and download routes returned 200. HTTP/apex/www and missing project trailing slashes redirected to HTTPS apex routes. Excluded CaveOS story/episode pages and Archive image returned 404. The first verification harness omitted URL encoding for legacy filenames containing spaces; correcting encoding yielded the pass without changing production.
+
+The supported browser rendered the live root, app and CaveOS home at 390px with no horizontal document overflow or failed loaded images. CaveOS gallery advanced from 1/2 to 2/2, Escape closed it, TALK selected its panel and the build-info dialog opened/closed. Earlier full local technical/keyboard/responsive checks remain applicable because served website bytes match the approved artifact. Desktop/mobile screenshots stay local outside repositories.
+
+The first production dispatch request returned GitHub HTTP 500 and created no run; a checked retry succeeded. No approval or security guard was bypassed. Source privacy and a real production rollback/fault drill remain unperformed.

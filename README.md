@@ -2,7 +2,7 @@
 
 Public deployment orchestration for [FlowLoop.io](https://flowloop.io/). Editable websites live in `patrickneubauer/flowloop.io` and `patrickneubauer/caveOS`; this repository contains no generated website or private CaveOS content.
 
-**Preparation state, 26 October 2026:** production still publishes from the existing FlowLoop source repository. CaveOS’s public boundary is owner-approved and integrated on its main; the FlowLoop migration remains a draft until cutover. Owner-configured credentials, Pages Actions source, main protections and environment branch restrictions are verified. Credential-backed prepared-site validation and a CaveOS requester smoke test passed; publication switches remain absent/off. The owner approved domain transfer and portfolio publication on 26 October; execution awaits an owner-authenticated GitHub session. Source privacy still requires separate approval after live verification. See [validation evidence](docs/validation.md).
+**Production state, 26 October 2026:** the owner-approved portfolio is live at [flowloop.io](https://flowloop.io/), the original app at [/flowloop-app/](https://flowloop.io/flowloop-app/) and the approved CaveOS subset at [/caveos/](https://flowloop.io/caveos/). This repository holds the custom domain and enforces HTTPS; the old source Pages site is unpublished. Both source-main notifications and central publication switches are enabled. Source-push publications from both repositories passed. The FlowLoop source remains public pending separate owner approval; DNS/email are unchanged. See [validation evidence](docs/validation.md).
 
 ## Local assembly
 
@@ -23,6 +23,6 @@ python3 -m http.server 5189 --bind 127.0.0.1 --directory ../preview-site
 - [Prepared migration preflight](.github/workflows/verify-migration.yml): manual credential-backed validation of the reviewed FlowLoop branch and CaveOS main, with no upload/deploy. See [owner setup](docs/owner-setup.md).
 - [Tooling checks](.github/workflows/check.yml): synthetic tests on pushes and pull requests, without private-source credentials.
 - Source repository notification workflows: every `main` commit, including non-website changes, requests a rebuild once enabled. No scheduled jobs, trigger loops or generated Git commits.
-- `SOURCE_BUILD_ENABLED=true` activates source reads/builds. `PAGES_DEPLOY_ENABLED=true` activates publication. Both are absent/off initially; these switches do not replace the approval policy.
+- `SOURCE_BUILD_ENABLED=true` activates source reads/builds. `PAGES_DEPLOY_ENABLED=true` activates publication. Both are enabled for production; these switches do not replace the approval policy.
 
 See [infrastructure and operations](docs/infrastructure.md), [cutover checklist](docs/cutover.md), and [validation evidence](docs/validation.md). AI assistance was used for implementation and review; checks and remaining owner actions are recorded separately.
