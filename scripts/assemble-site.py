@@ -20,6 +20,7 @@ from urllib.parse import unquote, urlsplit
 ORIGIN = "https://flowloop.io"
 PROFILE = "publication-profile.json"
 MANIFEST = "deployment-manifest.json"
+CLOUDFLARE_BEACON = "https://static.cloudflareinsights.com/beacon.min.js"
 VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"}
 
 
@@ -418,7 +419,22 @@ def ensure_disjoint(output: Path, roots: list[Path]) -> None:
             pass
 
 
-def assemble(flowloop: Path, caveos: Path, output: Path, allow_unapproved_local: bool = False) -> Path:
+def add_web_analytics(data: bytes, token: str, page: str) -> bytes:
+    if CLOUDFLARE_BEACON.encode("ascii") in data:
+        fail(f"Cloudflare Web Analytics is already present in {page}")
+    closing = list(re.finditer(rb"</body\s*>", data, flags=re.I))
+    if len(closing) != 1:
+        fail(f"Cloudflare Web Analytics requires one closing body tag in {page}")
+    snippet = ("<!-- Cloudflare Web Analytics -->\n"
+               f'<script type="module" src="{CLOUDFLARE_BEACON}" '
+               f'data-cf-beacon=\'{{"token":"{token}"}}\'></script>\n'
+               "<!-- End Cloudflare Web Analytics -->\n").encode("ascii")
+    position = closing[0].start()
+    return data[:position] + snippet + data[position:]
+
+
+def assemble(flowloop: Path, caveos: Path, output: Path, allow_unapproved_local: bool = False,
+             cloudflare_web_analytics_token: str = "") -> Path:
     if flowloop.is_symlink() or caveos.is_symlink():
         fail("Flowloop and CaveOS source roots must not be symlinks")
     flowloop = flowloop.resolve(strict=True)
@@ -435,6 +451,9 @@ def assemble(flowloop: Path, caveos: Path, output: Path, allow_unapproved_local:
     profile = profile_load(caveos)
     local = check_local_flag(argparse.Namespace(allow_unapproved_local=allow_unapproved_local))
     approval(profile, local)  # must happen before staging or writing
+    analytics_token = cloudflare_web_analytics_token.lower()
+    if analytics_token and not re.fullmatch(r"[0-9a-f]{32}", analytics_token):
+        fail("Cloudflare Web Analytics requires its 32-character hexadecimal public site token")
     cave_dist = caveos / "website" / "dist"
     allow = set(profile["files"])
     for rel in sorted(allow):
@@ -510,6 +529,16 @@ def assemble(flowloop: Path, caveos: Path, output: Path, allow_unapproved_local:
             for page in excluded:
                 if re.search(r"(?:href|src)\s*=\s*([\"'])[^\"']*(?:^|/)" + re.escape(page) + r"(?:[?#\"'])", text, flags=re.I):
                     fail(f"publication refusal: link to excluded page {page} remains")
+        analytics_pages = []
+        if analytics_token:
+            # Track public content pages only. Legal/download aliases and the private
+            # standalone CaveOS source retain their original bytes and behavior.
+            tracked = {"index.html", "flowloop-app/index.html"}
+            tracked |= {"caveos/" + rel for rel in allow if rel.lower().endswith(".html")}
+            for rel in sorted(tracked):
+                target = stage / rel
+                target.write_bytes(add_web_analytics(target.read_bytes(), analytics_token, rel))
+                analytics_pages.append(rel)
         (stage / "CNAME").write_text("flowloop.io\n", encoding="ascii")
         (stage / ".nojekyll").write_bytes(b"")
         if local:
@@ -533,6 +562,9 @@ def assemble(flowloop: Path, caveos: Path, output: Path, allow_unapproved_local:
                        if p.is_file() and p.name != MANIFEST}
         manifest = {"schema_version": 1, "profile_id": profile["profile_id"],
                     "revisions": revisions, "source_dirty": dirty, "files": file_hashes}
+        if analytics_token:
+            manifest["analytics"] = {"provider": "cloudflare-web-analytics", "site_token": analytics_token,
+                                     "pages": analytics_pages}
         (stage / MANIFEST).write_text(json.dumps(manifest, sort_keys=True, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
         if output.exists():
             output.rmdir()
@@ -549,9 +581,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--caveos", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--allow-unapproved-local", action="store_true")
+    parser.add_argument("--cloudflare-web-analytics-token", default="",
+                        help="public Cloudflare Web Analytics site token (not an API credential)")
     args = parser.parse_args(argv)
     try:
-        result = assemble(args.flowloop, args.caveos, args.output, args.allow_unapproved_local)
+        result = assemble(args.flowloop, args.caveos, args.output, args.allow_unapproved_local,
+                          args.cloudflare_web_analytics_token)
         print(f"Assembled static site at {result}")
         return 0
     except (BuildError, OSError) as e:

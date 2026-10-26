@@ -192,6 +192,58 @@ class SiteToolsTests(unittest.TestCase):
         errors = validate_module.validate(self.out, self.cave)
         self.assertTrue(any("missing local HTML fragment" in e for e in errors), errors)
 
+    def test_analytics_covers_public_pages_without_changing_legal_or_private_sources(self):
+        self.write_profile("approved")
+        self._write(self.flow / "flowloop-app/index.html", "<html><body>Flowloop</body></html>")
+        private_source = (self.dist / "index.html").read_bytes()
+        token = "a" * 32
+        self.assemble_clean(self.flow, self.cave, self.out, cloudflare_web_analytics_token=token)
+        manifest = json.loads((self.out / build.MANIFEST).read_text())
+        self.assertEqual(manifest["analytics"]["pages"],
+                         ["caveos/index.html", "flowloop-app/index.html", "index.html"])
+        for rel in manifest["analytics"]["pages"]:
+            page = (self.out / rel).read_text()
+            self.assertEqual(page.count(build.CLOUDFLARE_BEACON), 1)
+            self.assertIn('"token":"' + token + '"', page)
+            self.assertNotIn("LOCAL-PRIVATE-CANARY", page)
+        for rel in ["privacy.html", "flowloop-app/privacy.html"]:
+            self.assertEqual((self.out / rel).read_bytes(), b"<p>Privacy</p>")
+        for rel in ["404.html", "flowloop-app/download/index.html"]:
+            self.assertNotIn(build.CLOUDFLARE_BEACON, (self.out / rel).read_text())
+        self.assertEqual((self.dist / "index.html").read_bytes(), private_source)
+        self.assertEqual(validate_module.validate(self.out, self.cave), [])
+        second = self.base / "second"
+        self.assemble_clean(self.flow, self.cave, second, cloudflare_web_analytics_token=token)
+        self.assertEqual({p.relative_to(self.out): p.read_bytes() for p in self.out.rglob("*") if p.is_file()},
+                         {p.relative_to(second): p.read_bytes() for p in second.rglob("*") if p.is_file()})
+
+    def test_invalid_analytics_token_refuses_before_creating_output(self):
+        self.write_profile("approved")
+        with self.assertRaisesRegex(build.BuildError, "public site token"):
+            self.assemble_clean(self.flow, self.cave, self.out,
+                                cloudflare_web_analytics_token='bad\"><script>injected</script>')
+        self.assertFalse(self.out.exists())
+
+    def test_duplicate_or_missing_body_analytics_refuses_incomplete_publication(self):
+        self.write_profile("approved")
+        for page in ["<h1>No body tag</h1>",
+                     '<html><body><script src="' + build.CLOUDFLARE_BEACON + '"></script></body></html>']:
+            with self.subTest(page=page):
+                self._write(self.flow / "index.html", page)
+                with self.assertRaises(build.BuildError):
+                    self.assemble_clean(self.flow, self.cave, self.out,
+                                        cloudflare_web_analytics_token="a" * 32)
+                self.assertFalse(self.out.exists())
+
+    def test_validator_rejects_wrong_site_beacon(self):
+        self.write_profile("approved")
+        self._write(self.flow / "flowloop-app/index.html", "<html><body>Flowloop</body></html>")
+        self.assemble_clean(self.flow, self.cave, self.out, cloudflare_web_analytics_token="a" * 32)
+        page = self.out / "index.html"
+        page.write_text(page.read_text().replace('"token":"' + "a" * 32, '"token":"' + "b" * 32))
+        errors = validate_module.validate(self.out, self.cave)
+        self.assertTrue(any("beacon does not match" in e for e in errors), errors)
+
 
 if __name__ == "__main__":
     unittest.main()
