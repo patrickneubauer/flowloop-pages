@@ -20,7 +20,7 @@ The central Python assembler copies only the portfolio paths, migrated app and e
 
 Routes use lowercase project directory names and trailing slashes: `/`, `/flowloop-app/`, `/caveos/`. Existing sibling CaveOS `.html` page names remain valid. Pages redirects directory paths without a slash to their slash form. Source-specific styling remains independent. Root `/privacy.html` serves the exact original policy bytes, preserving external and App Store policy references. Root `/download/` and `/static/` are generated compatibility copies of the app directories; root legacy icons remain available. These are derived deployment aliases, not independent editable sources. Existing root hash links cannot redirect server-side on Pages; the new homepage includes the app link, and app anchors continue under `/flowloop-app/#...`.
 
-`deployment-manifest.json` records source and orchestrator Git revisions, publication profile and generated file hashes. Rebuilding the same revisions/profile is deterministic. Generated output is never committed. Rollback uses reviewed Git reverts of sources/tooling followed by rebuilding both trusted mains; arbitrary source refs from dispatch input are deliberately unsupported.
+`deployment-manifest.json` records source and orchestrator Git revisions, publication profile, generated file hashes and any configured analytics coverage/site identifier. Rebuilding the same revisions/profile/analytics configuration is deterministic. Generated output is never committed. Rollback uses reviewed Git reverts of sources/tooling followed by rebuilding both trusted mains; arbitrary source refs from dispatch input are deliberately unsupported.
 
 ## CaveOS publication boundary
 
@@ -56,6 +56,8 @@ Workflow-level concurrency serializes publication with `cancel-in-progress: fals
 Private repositories' small notification jobs consume private Actions minutes. Public central builds use public Actions hosting. This fits GitHub Free hosting; it does not imply unlimited private Actions minutes. Keep paid usage/budgets disabled unless explicitly authorized. Manual retry is available in the central Actions UI. `SOURCE_BUILD_ENABLED` and `PAGES_DEPLOY_ENABLED` are operator switches, absent by default, not security substitutes for policy validation and protected refs.
 
 ## Domain, HTTPS and email
+
+[Cloudflare Web Analytics](analytics.md) uses a manually installed public beacon identifier supplied as a repository variable. It is added to generated public content pages only, after CaveOS redaction. It does not change hosting, DNS, proxying, source visibility, private standalone CaveOS publication or original legal-page bytes. No Cloudflare API credential is used. Actual visitor collection must be verified separately from deployment success.
 
 Verified DNS, preserved unchanged:
 

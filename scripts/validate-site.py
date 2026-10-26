@@ -44,6 +44,7 @@ class HtmlRefs(HTMLParser):
         self.ids: set[str] = set()
         self.spoiler = False
         self.private_attr = False
+        self.cloudflare_tokens: list[str | None] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         amap = {k.lower(): (v or "") for k, v in attrs}
@@ -51,6 +52,13 @@ class HtmlRefs(HTMLParser):
             self.ids.add(amap["id"])
         if tag.lower() == "a" and amap.get("name"):
             self.ids.add(amap["name"])
+        if tag.lower() == "script" and amap.get("src") == _build.CLOUDFLARE_BEACON:
+            try:
+                config = json.loads(amap.get("data-cf-beacon", ""))
+                token = config.get("token") if isinstance(config, dict) else None
+            except json.JSONDecodeError:
+                token = None
+            self.cloudflare_tokens.append(token)
         for attr in ("href", "src", "poster", "data", "action"):
             if amap.get(attr):
                 self.refs.append((attr, amap[attr]))
@@ -264,6 +272,25 @@ def validate(site: Path, caveos: Path | None = None, allow_unapproved_local: boo
                     if re.search(r"(?:href|src)\s*=\s*(['\"])[^'\"]*(?:/|^)" + re.escape(page) + r"(?:[?#'\"])", text, flags=re.I):
                         v.error(f"{rel}: link to excluded page {page} remains")
         canonical_urls.update(x for x in parser.canonical if x)
+    analytics = manifest.get("analytics") if isinstance(manifest, dict) else None
+    expected_analytics: dict[str, str] = {}
+    if analytics is not None:
+        if (not isinstance(analytics, dict) or analytics.get("provider") != "cloudflare-web-analytics"
+                or not isinstance(analytics.get("site_token"), str)
+                or not re.fullmatch(r"[0-9a-f]{32}", analytics["site_token"])
+                or not isinstance(analytics.get("pages"), list)
+                or any(not isinstance(p, str) for p in analytics["pages"])):
+            v.error("invalid Cloudflare Web Analytics manifest configuration")
+        else:
+            expected_pages = {"index.html", "flowloop-app/index.html"}
+            expected_pages |= {p for p in html_parsers if p.startswith("caveos/")}
+            if set(analytics["pages"]) != expected_pages or len(analytics["pages"]) != len(expected_pages):
+                v.error("Cloudflare Web Analytics pages must match public content pages only")
+            expected_analytics = {p: analytics["site_token"] for p in expected_pages}
+    for rel, parser in html_parsers.items():
+        expected_tokens = [expected_analytics[rel]] if rel in expected_analytics else []
+        if parser.cloudflare_tokens != expected_tokens:
+            v.error(f"{rel}: Cloudflare Web Analytics beacon does not match manifest coverage/token")
     for rel, refs in refs_by_page.items():
         mount = "/caveos/" if rel.startswith("caveos/") else ""
         for attr, url in refs:

@@ -26,3 +26,5 @@ python3 -m http.server 5189 --bind 127.0.0.1 --directory ../preview-site
 - `SOURCE_BUILD_ENABLED=true` activates source reads/builds. `PAGES_DEPLOY_ENABLED=true` activates publication. Both are enabled for production; these switches do not replace the approval policy.
 
 See [infrastructure and operations](docs/infrastructure.md), [cutover checklist](docs/cutover.md), and [validation evidence](docs/validation.md). AI assistance was used for implementation and review; checks and remaining owner actions are recorded separately.
+
+[Cloudflare Web Analytics](docs/analytics.md) can be added to the public content pages using the public site-token repository variable. GitHub Pages remains the host; the beacon does not require DNS changes.

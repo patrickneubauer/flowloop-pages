@@ -68,7 +68,11 @@ jobs:
           persist-credentials: false
           sparse-checkout: website
       - name: Assemble approved files only
-        run: python3 scripts/assemble-site.py --flowloop .sources/flowloop --caveos .sources/caveos --output ../public-site
+        env:
+          CLOUDFLARE_WEB_ANALYTICS_TOKEN: ${{ vars.CLOUDFLARE_WEB_ANALYTICS_TOKEN }}
+        run: >-
+          python3 scripts/assemble-site.py --flowloop .sources/flowloop --caveos .sources/caveos
+          --output ../public-site --cloudflare-web-analytics-token "$CLOUDFLARE_WEB_ANALYTICS_TOKEN"
       - name: Validate routes, assets and public boundary
         run: python3 scripts/validate-site.py --site ../public-site --caveos .sources/caveos
       - name: Record source revisions
